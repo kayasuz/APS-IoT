@@ -1,4 +1,8 @@
 
+"""
+biblioteca para facilitar o uso da bilioteca mqtt 'paho'
+"""
+
 # exporta o caminho da bilioteca para o python PATH
 import os, sys
 basepath = os.path.split(__file__)[0]

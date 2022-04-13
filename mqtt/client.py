@@ -1,4 +1,9 @@
 
+"""
+modulo com classes de supporte para facilitar
+a criacao de clientes MQTT
+"""
+
 # ---------- preambulo ----------
 
 # modulos do sistema usados
@@ -33,6 +38,10 @@ def exportado(coisa):
 
 @exportado
 class MQTTClient:
+
+	"""
+	classe de suporte para facilitar a criacao de clientes MQTT
+	"""
 
 	# porta padrao MQTT
 	PORTA_MQTT_PADRAO = 1883
