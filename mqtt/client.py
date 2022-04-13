@@ -68,12 +68,16 @@ class MQTTClient:
 		self._id = self.gerar_id_cliente()
 
 		# seta os atributos
+		self.on_connect = None
+		self.on_message = None
 		self._broker    = broker
 		self._porta     = porta
 
 		# conecta o cliente com o broker
+		import functools
 		self._handler = mqtt_client.Client(f"python-{self._id:04X}")
-		self._handler.on_connect = self.on_connect
+		self._handler.on_connect = self._handle_connect
+		self._handler.on_message = self._handle_message
 		self._handler.connect(broker, porta)
 
 		# registra a instancia
@@ -81,6 +85,10 @@ class MQTTClient:
 			#TODO: mudar o tipo de excecao
 			class_name = self.__class__.__qualname__
 			raise Exception(f"can't register {class_name} with id 0x{id_:04X}, id already in use")
+
+	def __repr__(self):
+		class_name = self.__class__.__qualname__
+		return f"{class_name}(id=0x{self._id:04X})"
 
 	@classmethod
 	def gerar_id_cliente(cls):
@@ -91,10 +99,22 @@ class MQTTClient:
 			if id_ not in clientes:
 				return id_
 
-	@classmethod
-	def on_connect(cls, cliente, userdata, flags, rc):
-		if rc:
-			print(f"{cls.__name__}: failed to connect with error code {rc}", file=sys.stderr)
+
+	# ====== handlers internos =======
+
+	def _handle_message(self, topico, mensagem):
+		if self.on_message is not None:
+			self.on_message(topico, mensagem)
+
+	def _handle_connect(self, handler, userdata, flags, rc):
+		if rc == 0:
+			print(f"cliente MQTT 0x{self._id:04X} conectado ao broker '{self._broker}' na porta '{self._porta}'")
+		else:
+			print(f"cliente MQTT 0x{self._id:04X} falhou em conectar ao broker com codigo de erro {rc}", file=sys.stderr)
+
+		if self.on_connect is not None:
+			self.on_connect(handler, userdata, flags, rc)
+
 
 	# ====== funcoes principais ======
 
@@ -109,6 +129,26 @@ class MQTTClient:
 
 	def loop_forever(self):
 		self._handler.loop_forever()
+
+	# ====== setters e getters =======
+
+	def connect_callback(self, *callback):
+		if len(callback) == 0:
+			return self.on_connect
+		elif len(callback) == 1:
+			self.on_connect = callback[0]
+			return self.on_connect
+		else:
+			raise TypeError(f"{__func__} expected from 1 to 2 arguments, got {len(callback)}")
+
+	def message_callback(self, *callback):
+		if len(callback) == 0:
+			return self.on_message
+		elif len(callback) == 1:
+			self.on_message = callback[0]
+			return self.on_message
+		else:
+			raise TypeError(f"{__func__} expected from 1 to 2 arguments, got {len(callback)}")
 
 
 # limpeza
