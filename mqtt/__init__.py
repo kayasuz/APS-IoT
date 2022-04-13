@@ -7,3 +7,9 @@ sys.path.insert(0, basepath)
 # limpeza
 del os, sys
 del basepath
+
+# modulos da blibioteca disponives por padrao
+from mqtt import cliente
+
+# configura o que eh visivel fora da bilioteca
+__all__ = ["cliente"] + cliente.__all__

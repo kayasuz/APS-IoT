@@ -1,4 +1,7 @@
 
+# ---------- preambulo ----------
+
+# modulos do sistema usados
 import sys
 
 # tenta importar o paho (modulo de cliente MQTT)
