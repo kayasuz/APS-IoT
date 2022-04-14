@@ -102,9 +102,9 @@ class MQTTClient:
 
 	# ====== handlers internos =======
 
-	def _handle_message(self, topico, mensagem):
+	def _handle_message(self, handler, userdata, message):
 		if self.on_message is not None:
-			self.on_message(topico, mensagem)
+			self.on_message(handler, message.topic, message.payload.decode())
 
 	def _handle_connect(self, handler, userdata, flags, rc):
 		if rc == 0:
@@ -122,7 +122,7 @@ class MQTTClient:
 		return self._handler.subscribe(topico)
 
 	def publish(self, topico, mensagem):
-		return self._handler.publish(topic, mensagem)
+		return self._handler.publish(topico, mensagem)
 
 	def loop_start(self):
 		self._handler.loop_start()
