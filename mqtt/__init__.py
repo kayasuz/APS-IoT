@@ -9,7 +9,7 @@ basepath = os.path.split(__file__)[0]
 dirpath  = os.path.split(basepath)[0]
 
 if dirpath in sys.path:
-	sys.path.remove(dirpath)
+    sys.path.remove(dirpath)
 
 sys.path.insert(0, dirpath)
 
