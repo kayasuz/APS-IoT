@@ -19,7 +19,7 @@ del basepath
 del dirpath
 
 # modulos da blibioteca disponives por padrao
-from mqtt import client
+from mqtt import client, serial
 
 # configura o que eh visivel fora da bilioteca
-__all__ = ["cliente"] + client.__all__
+__all__ = ["cliente", "serial"] + client.__all__ + serial.__all__
