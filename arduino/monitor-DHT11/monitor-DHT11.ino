@@ -27,7 +27,7 @@ void loop() {
   if (isnan(temp)) {
     Serial.println("error reading temperature");
   } else {
-    Serial.print("sensor temperature");
+    Serial.print("sensor temperature ");
     Serial.println(temp);
   }
 }
