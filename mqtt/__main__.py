@@ -91,7 +91,7 @@ def main():
     try:
         handler.loop_forever()
     except KeyboardInterrupt:
-        pass
+        print()
 
 if __name__ == "__main__":
     main()
