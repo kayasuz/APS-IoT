@@ -5,9 +5,12 @@
 from mqtt.client import MQTTClient
 from mqtt.serial import SerialHandler
 
-# ------------ corpo ------------
+# modulos da biblioteca padrao
+import os
+import sys
 
 broker = "localhost"
+# ------------ corpo ------------
 
 def on_message(client, topico, mensagem):
     print(f"{topico}: {mensagem}")
@@ -63,7 +66,6 @@ def selecionar_porta_serial(prompt=True):
         print()
 
 def main():
-    import sys
     try:
         client = MQTTClient(broker)
     except ConnectionRefusedError:
