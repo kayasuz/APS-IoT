@@ -8,6 +8,7 @@ a criacao de clientes MQTT
 
 # modulos do sistema usados
 import sys
+from weakref import WeakValueDictionary
 
 # tenta importar o paho (modulo de cliente MQTT)
 try:
@@ -56,7 +57,7 @@ class MQTTClient:
     ID_CLIENTE_MAXIMO = (2 << 16) - 1
 
     # clientes ativos
-    clientes = {}
+    clientes = WeakValueDictionary()
 
     def __init__(self, broker, porta=None):
         if porta is None:
