@@ -8,6 +8,7 @@ from mqtt.serial import SerialHandler
 # modulos da biblioteca padrao
 import os
 import sys
+import traceback
 
 broker = "localhost"
 # ------------ corpo ------------
@@ -69,32 +70,40 @@ def main():
     try:
         client = MQTTClient(broker)
     except ConnectionRefusedError:
-        print(f"falha ao conectar ao broker: conexao recusada", file=sys.stderr)
+        print(f"falha ao conectar ao broker '{broker}', conexao recusada", file=sys.stderr)
         exit(1)
 
     try:
         porta = selecionar_porta_serial()
-    except ImportError:
+    except ImportError as error:
+        traceback.printexc()
         print("erro: PySerial nao esta instalado", file=sys.stderr)
         exit(1)
-    
+
     if porta is None:
         exit(1)
 
     handler = SerialHandler(client, porta)
     client.message_callback(on_message)
 
-    handler.encaminhar("temperature", "/dev/sensor/temp:0")
-    handler.encaminhar("humidity",    "/dev/sensor/humi:0")
+    print("configurando handler de sensores...", end='', flush=True)
+    try:
+        handler.encaminhar("temperature", "/dev/sensor/temp:0")
+        handler.encaminhar("humidity",    "/dev/sensor/humi:0")
 
-    client.subscribe("/dev/sensor/temp:0")
-    client.subscribe("/dev/sensor/humi:0")
+        client.subscribe("/dev/sensor/temp:0")
+        client.subscribe("/dev/sensor/humi:0")
+    except Exception as error:
+        print(" erro")
+    else:
+        print(" pronto")
 
     client.loop_start()
+    print("cliente iniciado")
     try:
         handler.loop_forever()
     except KeyboardInterrupt:
-        print()
+        print("\nparando cliente")
 
 if __name__ == "__main__":
     main()
