@@ -8,6 +8,7 @@ a criacao de clientes MQTT
 
 # modulos do sistema usados
 import sys
+from weakref import WeakValueDictionary
 
 # tenta importar o paho (modulo de cliente MQTT)
 try:
@@ -37,6 +38,12 @@ def exportado(coisa):
 # ---------- classes ----------
 
 @exportado
+class MQTTClientIDCollisionError(Exception):
+    """
+    classe para erros relacionados a colisao de IDs entre clientes MQTT
+    """
+
+@exportado
 class MQTTClient:
 
     """
@@ -50,7 +57,7 @@ class MQTTClient:
     ID_CLIENTE_MAXIMO = (2 << 16) - 1
 
     # clientes ativos
-    clientes = {}
+    clientes = WeakValueDictionary()
 
     def __init__(self, broker, porta=None):
         if porta is None:
@@ -82,9 +89,8 @@ class MQTTClient:
 
         # registra a instancia
         if self.clientes.setdefault(self._id, self) is not self:
-            #TODO: mudar o tipo de excecao
             class_name = self.__class__.__qualname__
-            raise Exception(f"can't register {class_name} with id 0x{id_:04X}, id already in use")
+            raise MQTTClientIDCollisionError(f"can't register {class_name} with id 0x{id_:04X}, id already in use")
 
     def __repr__(self):
         class_name = self.__class__.__qualname__

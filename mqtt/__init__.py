@@ -13,13 +13,16 @@ if dirpath in sys.path:
 
 sys.path.insert(0, dirpath)
 
+# pasta que contem o programa
+PROGRAM_PATH = dirpath
+
 # limpeza
 del os, sys
 del basepath
 del dirpath
 
 # modulos da blibioteca disponives por padrao
-from mqtt import client
+from mqtt import client, serial
 
 # configura o que eh visivel fora da bilioteca
-__all__ = ["cliente"] + client.__all__
+__all__ = ["cliente", "serial"] + client.__all__ + serial.__all__
