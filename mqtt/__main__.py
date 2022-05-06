@@ -13,7 +13,7 @@ def on_message(client, topico, mensagem):
     print(f"{topico}: {mensagem}")
 
 def listar_portas():
-    import PySerial.tools.list_ports
+    import serial.tools.list_ports
     return list(serial.tools.list_ports.comports())
 
 def selecionar_porta_serial(prompt=True):
@@ -25,7 +25,8 @@ def selecionar_porta_serial(prompt=True):
     # tenta encontrar um unico arduino para se conectar
     arduino = None
     for porta in portas:
-        if porta.manufacturer is not None and porta.startswith("Arduino"):
+        manufacturer = porta.manufacturer
+        if manufacturer is not None and manufacturer.startswith("Arduino"):
             if arduino is not None:
                 # mais de um arduino encontrado
                 break
