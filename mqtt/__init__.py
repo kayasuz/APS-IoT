@@ -13,6 +13,9 @@ if dirpath in sys.path:
 
 sys.path.insert(0, dirpath)
 
+# pasta que contem o programa
+PROGRAM_PATH = dirpath
+
 # limpeza
 del os, sys
 del basepath

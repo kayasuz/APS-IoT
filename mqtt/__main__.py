@@ -9,8 +9,8 @@ from mqtt.serial import SerialHandler
 import os
 import sys
 import traceback
+import json
 
-broker = "localhost"
 # ------------ corpo ------------
 
 def on_message(client, topico, mensagem):
@@ -66,7 +66,73 @@ def selecionar_porta_serial(prompt=True):
     except KeyboardInterrupt:
         print()
 
+def carregar_arquivo_de_configuracao():
+    import mqtt
+    path = os.path.join(mqtt.PROGRAM_PATH, "config", "mqtt.json")
+    try:
+        with open(path, 'r') as fh:
+            return json.load(fh)
+    except FileNotFoundError as error:
+        print("falha ao carregar as configuracoes, "
+            f"arquivo de configuracao nao encontrado: {path}")
+    except (json.JSONDecodeError, OSError) as error:
+        print(f"{traceback.formatexc()}"
+            "\nfalha ao carregar as configuracoes devido ao erro acima\n", file=sys.stderr)
+
+def carregar_configuracao():
+
+    cfg = carregar_arquivo_de_configuracao()
+
+    broker = cfg.get("broker", None)
+    if broker is None:
+        print("falha ao carregas as configuracoes, campo 'broker' nao definido", file=sys.stderr)
+        return
+    if not isinstance(broker, str):
+        print("falha ao carregar as configuracoes, campo 'broker' invalido", file=sys.stderr)
+        return
+
+    sensores = cfg.get("sensores", {})
+    if not isinstance(sensores, dict):
+        print("falha ao carregar as configuracoes, campo 'sensores' invalido", file=sys.stderr)
+    else:
+        sensores_ = carregar_configuracao_dos_sensores(sensores.items())
+        if sensores_ is None:
+            print("falha ao carregar as configuracoes devido ao erro acima", file=sys.stderr)
+        else:
+            print("configuracao carregada")
+            return (broker, sensores_)
+
+def carregar_configuracao_dos_sensores(sensores):
+
+    carregados = []
+    for nome_hardware, sensor in sensores:
+        if not isinstance(sensor, dict):
+            print(f"falha ao carregar a configuracao do sensor " 
+                f"'{nome_hardware}', configuracao invalida", file=sys.stderr)
+            return
+
+        campos = []
+        for campo in ("nome", "topico"):
+            if campo in sensor:
+                valor = sensor[campo]
+                if isinstance(valor, str) and len(valor) > 0:
+                    campos.append(valor)
+                    continue
+    
+            print(f"falha ao carregar a configuracao do sensor "
+                f"'{nome_hardware}', campo '{campo}' nao definido")
+            return
+
+        carregados.append((nome_hardware, *campos))
+
+    return carregados
+
 def main():
+    configuracao = carregar_configuracao()
+    if configuracao is None:
+        exit(1)
+
+    broker, sensores = configuracao
     try:
         client = MQTTClient(broker)
     except ConnectionRefusedError:
@@ -86,20 +152,14 @@ def main():
     handler = SerialHandler(client, porta)
     client.message_callback(on_message)
 
-    print("configurando handler de sensores...", end='', flush=True)
-    try:
-        handler.encaminhar("temperature", "/dev/sensor/temp:0")
-        handler.encaminhar("humidity",    "/dev/sensor/humi:0")
-
-        client.subscribe("/dev/sensor/temp:0")
-        client.subscribe("/dev/sensor/humi:0")
-    except Exception as error:
-        print(" erro")
-    else:
-        print(" pronto")
+    print("\nconfigurando handler de sensores...")
+    for nome_hardware, nome, topico, *ignorado in sensores:
+        handler.encaminhar(nome_hardware, topico)
+        client.subscribe(topico)
+        print(f"saida do sensor '{nome}' encaminhada para o topico '{topico}'")
 
     client.loop_start()
-    print("cliente iniciado")
+    print("\ncliente iniciado")
     try:
         handler.loop_forever()
     except KeyboardInterrupt:

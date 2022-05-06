@@ -1,0 +1,13 @@
+{
+	"broker": "localhost",
+	"sensores": {
+		"temperature": {
+			"nome":   "temperatura",
+			"topico": "/dev/sensor/temp:0"
+		},
+		"humidity": {
+			"nome":   "umidade",
+			"topico": "/dev/sensor/humi:0"
+		}
+	}
+}
