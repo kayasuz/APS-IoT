@@ -110,7 +110,7 @@ def carregar_arquivo_de_configuracao():
         print("falha ao carregar as configuracoes, "
             f"arquivo de configuracao nao encontrado: {path}")
     except (json.JSONDecodeError, OSError) as error:
-        print(f"{traceback.formatexc()}"
+        print(f"{traceback.format_exc()}"
             "\nfalha ao carregar as configuracoes devido ao erro acima\n", file=sys.stderr)
 
 def carregar_configuracao():
@@ -212,7 +212,6 @@ def main():
     try:
         porta = selecionar_porta_serial()
     except ImportError as error:
-        traceback.printexc()
         print("erro: PySerial nao esta instalado", file=sys.stderr)
         exit(1)
 
