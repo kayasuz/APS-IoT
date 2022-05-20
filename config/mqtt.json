@@ -1,5 +1,5 @@
 {
-	"broker": "localhost",
+	"broker": "www.mqtt-dashboard.com",
 	"sensores": {
 		"temperature": {
 			"nome":   "temperatura",
