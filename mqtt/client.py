@@ -53,8 +53,8 @@ class MQTTClient:
     # porta padrao MQTT
     PORTA_MQTT_PADRAO = 1883
 
-    # id maximo de cliente (32 bits)
-    ID_CLIENTE_MAXIMO = (2 << 16) - 1
+    # id maximo de cliente (16 bits)
+    ID_CLIENTE_MAXIMO = (1 << 16) - 1
 
     # clientes ativos
     clientes = WeakValueDictionary()
